@@ -48,7 +48,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 }
 
 resource "google_cloud_run_v2_service" "gtmss-cr-preview" {
-  count = var.deploy_preview_server ? 1 : 0
+  count      = var.deploy_preview_server ? 1 : 0
   depends_on = [google_project_service.cloud_run_api]
   location   = var.preview_region
   name       = "gtmss-preview-server"
@@ -66,7 +66,7 @@ resource "google_cloud_run_v2_service" "gtmss-cr-preview" {
         value = var.container_config
       }
       env {
-        name = "RUN_AS_PREVIEW_SERVER"
+        name  = "RUN_AS_PREVIEW_SERVER"
         value = true
       }
     }
@@ -74,7 +74,7 @@ resource "google_cloud_run_v2_service" "gtmss-cr-preview" {
 }
 
 resource "google_cloud_run_service_iam_policy" "noauth_preview" {
-  count = var.deploy_preview_server ? 1 : 0
+  count    = var.deploy_preview_server ? 1 : 0
   location = var.preview_region
   service  = google_cloud_run_v2_service.gtmss-cr-preview[0].name
 

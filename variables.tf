@@ -17,15 +17,17 @@ variable "deploy_preview_server" {
 
 variable "preview_region" {
   description = "The region to deploy the sGTM Preview Server"
+  type        = string
+  default     = "europe-west1"
 }
 
-variable "min_preview_servers" {
+variable "min_preview_instance_count" {
   description = "The minimum number of sGTM Preview Servers to deploy"
   type        = number
   default     = 1
 }
 
-variable "max_preview_servers" {
+variable "max_preview_instance_count" {
   description = "The maximum number of sGTM Preview Servers to deploy"
   type        = number
   default     = 1
@@ -51,4 +53,6 @@ variable "min_instance_count" {
 
 variable "container_config" {
   description = "The container configuration for your sGTM"
+  type        = string
+
 }
