@@ -44,7 +44,7 @@ resource "google_compute_region_network_endpoint_group" "serverless-neg" {
 #
 resource "google_compute_global_forwarding_rule" "fwd_ipv4" {
   count                 = var.deploy_load_balancer ? 1 : 0
-  name                  = "ipv5-http-forwardingrule"
+  name                  = "ipv4-http-forwarding-rule"
   target                = google_compute_target_http_proxy.l7_proxy.0.id
   ip_address            = google_compute_global_address.default_ipv4.0.id
   ip_protocol           = "TCP"
@@ -54,7 +54,7 @@ resource "google_compute_global_forwarding_rule" "fwd_ipv4" {
 
 resource "google_compute_global_forwarding_rule" "fwd_ipv6" {
   count                 = var.deploy_load_balancer ? 1 : 0
-  name                  = "ipv6-http-forwardingrule"
+  name                  = "ipv6-http-forwarding-rule"
   target                = google_compute_target_http_proxy.l7_proxy.0.id
   ip_address            = google_compute_global_address.default_ipv6.0.id
   ip_protocol           = "TCP"
