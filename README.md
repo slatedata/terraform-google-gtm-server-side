@@ -6,7 +6,7 @@ Cloud Run based Google Tag Manager Server Side (GTMSS) with optional Load Balanc
 
 ```hcl
 module "gtmss" {
-  source  = "slatedata/terraform-google-gtm-server-side"
+  source  = "slatedata/gtm-server-side/google"
   version = "~> 0.1.0"
 
   project_id           = "my-project"
