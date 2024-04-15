@@ -1,0 +1,27 @@
+---
+default_stages: [commit, push]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-yaml
+        exclude: ^modules/gke-gateway/|^modules/monitoring/
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.77.1
+    hooks:
+      - id: terraform_fmt
+        args:
+          - --args=-recursive
+      - id: terraform_docs
+        args:
+          - --hook-config=--create-file-if-not-exist=true
+          - --hook-config=--path-to-file=README.md
+          - --hook-config=--add-to-existing-file=true
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.2
+    hooks:
+      - id: yamlfmt
+        args: [--mapping, '2', --sequence, '4', --offset, '2', --preserve_null]
+        exclude: ^modules/gke-gateway/|^modules/monitoring/
