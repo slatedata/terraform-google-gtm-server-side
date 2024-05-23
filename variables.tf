@@ -54,5 +54,16 @@ variable "min_instance_count" {
 variable "container_config" {
   description = "The container configuration for your sGTM"
   type        = string
+}
 
+variable "deploy_ssl" {
+  description = "Whether to deploy an SSL certificate for the sGTM instances. If you select this, you need to set the domain(s) in the domains variable."
+  type        = bool
+  default     = false
+}
+
+variable "domains" {
+  description = "The domains to deploy the sGTM instances on. These are used to provision the certificates, so should end with a full stop e.g. `gtm.example.com.` "
+  type        = list(string)
+  default     = []
 }

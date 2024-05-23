@@ -15,6 +15,8 @@ module "gtmss" {
   min_instance_count   = 3
   max_instance_count   = 10
   deploy_load_balancer = true
+  deploy_ssl           = true
+  domains              = ["sgtm.example.com.", "sgtm.example.org."]
 }
 ```
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
@@ -43,13 +45,17 @@ No modules.
 |------|------|
 | [google-beta_google_compute_global_address.default_ipv4](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_compute_global_address) | resource |
 | [google-beta_google_compute_global_address.default_ipv6](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_compute_global_address) | resource |
+| [google-beta_google_compute_target_https_proxy.l7_proxy](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_compute_target_https_proxy) | resource |
 | [google_cloud_run_service_iam_policy.noauth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service_iam_policy) | resource |
 | [google_cloud_run_service_iam_policy.noauth_preview](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service_iam_policy) | resource |
 | [google_cloud_run_v2_service.gtmss-cr](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
 | [google_cloud_run_v2_service.gtmss-cr-preview](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
 | [google_compute_backend_service.gtmss_backend](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_backend_service) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv4](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
+| [google_compute_global_forwarding_rule.fwd_ipv4_https](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv6](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
+| [google_compute_global_forwarding_rule.fwd_ipv6_https](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
+| [google_compute_managed_ssl_certificate.gtmss_ssl_cert](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_managed_ssl_certificate) | resource |
 | [google_compute_region_network_endpoint_group.serverless-neg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_network_endpoint_group) | resource |
 | [google_compute_target_http_proxy.l7_proxy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_target_http_proxy) | resource |
 | [google_compute_url_map.gtmss_url_map](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_url_map) | resource |
@@ -64,6 +70,8 @@ No modules.
 | <a name="input_container_config"></a> [container\_config](#input\_container\_config) | The container configuration for your sGTM | `string` | n/a | yes |
 | <a name="input_deploy_load_balancer"></a> [deploy\_load\_balancer](#input\_deploy\_load\_balancer) | Whether to deploy a load balancer in front of the sGTM instances | `bool` | `false` | no |
 | <a name="input_deploy_preview_server"></a> [deploy\_preview\_server](#input\_deploy\_preview\_server) | Whether to deploy an sGTM Preview Server | `bool` | `false` | no |
+| <a name="input_deploy_ssl"></a> [deploy\_ssl](#input\_deploy\_ssl) | Whether to deploy an SSL certificate for the sGTM instances. If you select this, you need to set the domain(s) in the domains variable. | `bool` | `false` | no |
+| <a name="input_domains"></a> [domains](#input\_domains) | The domains to deploy the sGTM instances on. These are used to provision the certificates, so should end with a full stop e.g. `gtm.example.com.` | `list(string)` | `[]` | no |
 | <a name="input_max_instance_count"></a> [max\_instance\_count](#input\_max\_instance\_count) | The maximum number of instances that each region can scale to | `number` | `10` | no |
 | <a name="input_max_preview_instance_count"></a> [max\_preview\_instance\_count](#input\_max\_preview\_instance\_count) | The maximum number of sGTM Preview Servers to deploy | `number` | `1` | no |
 | <a name="input_min_instance_count"></a> [min\_instance\_count](#input\_min\_instance\_count) | The minimum number of instances that each region can scale to | `number` | `1` | no |
