@@ -111,13 +111,12 @@ resource "google_compute_target_http_proxy" "l7_proxy" {
 }
 
 resource "google_compute_target_https_proxy" "l7_proxy" {
-  count            = var.deploy_load_balancer && var.deploy_ssl ? 1 : 0
-  provider         = google-beta
-  project          = var.project_id
-  name             = "l7-xlb-gtmss-proxy-https"
-  url_map          = google_compute_url_map.gtmss_url_map.0.id
-  ssl_certificates = values(google_compute_managed_ssl_certificate.gtmss_ssl_cert)[*].self_link
-  certificate_map  = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.id}"
+  count           = var.deploy_load_balancer && var.deploy_ssl ? 1 : 0
+  provider        = google-beta
+  project         = var.project_id
+  name            = "l7-xlb-gtmss-proxy-https"
+  url_map         = google_compute_url_map.gtmss_url_map.0.id
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.id}"
 }
 
 resource "google_compute_backend_service" "gtmss_backend" {
@@ -139,15 +138,6 @@ resource "google_compute_url_map" "gtmss_url_map" {
   count           = var.deploy_load_balancer ? 1 : 0
   name            = "gtmss-url-map"
   default_service = google_compute_backend_service.gtmss_backend.0.id
-}
-
-
-resource "google_compute_managed_ssl_certificate" "gtmss_ssl_cert" {
-  for_each = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
-  name     = "gtmss-ssl-cert-${replace(each.key, ".", "-")}"
-  managed {
-    domains = [each.key]
-  }
 }
 
 resource "google_certificate_manager_certificate" "sgtm_ssl_cert" {
