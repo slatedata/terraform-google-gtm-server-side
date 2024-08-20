@@ -59,7 +59,6 @@ No modules.
 | [google_compute_global_forwarding_rule.fwd_ipv4_https](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv6](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv6_https](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
-| [google_compute_managed_ssl_certificate.gtmss_ssl_cert](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_managed_ssl_certificate) | resource |
 | [google_compute_region_network_endpoint_group.serverless-neg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_network_endpoint_group) | resource |
 | [google_compute_target_http_proxy.l7_proxy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_target_http_proxy) | resource |
 | [google_compute_url_map.gtmss_url_map](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_url_map) | resource |
