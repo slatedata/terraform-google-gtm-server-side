@@ -9,6 +9,16 @@ resource "google_project_service" "compute_api" {
   disable_on_destroy = false
 }
 
+resource "google_project_service" "certificate-manager-api" {
+  service = "certificatemanager.googleapis.com"
+
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+  disable_on_destroy = false
+}
+
 resource "google_compute_global_address" "default_ipv6" {
   depends_on = [google_project_service.compute_api]
   count      = var.deploy_load_balancer ? 1 : 0
@@ -107,6 +117,7 @@ resource "google_compute_target_https_proxy" "l7_proxy" {
   name             = "l7-xlb-gtmss-proxy-https"
   url_map          = google_compute_url_map.gtmss_url_map.0.id
   ssl_certificates = values(google_compute_managed_ssl_certificate.gtmss_ssl_cert)[*].self_link
+  certificate_map  = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.id}"
 }
 
 resource "google_compute_backend_service" "gtmss_backend" {
@@ -137,4 +148,31 @@ resource "google_compute_managed_ssl_certificate" "gtmss_ssl_cert" {
   managed {
     domains = [each.key]
   }
+}
+
+resource "google_certificate_manager_certificate" "sgtm_ssl_cert" {
+  for_each = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
+  name     = "sgtm-ssl-cert-${replace(each.key, ".", "-")}"
+  managed {
+    domains = [each.key]
+  }
+}
+#
+resource "random_id" "tf_prefix" {
+  byte_length = 8
+}
+
+resource "google_certificate_manager_certificate_map" "sgtm_certmap" {
+  depends_on  = [google_project_service.certificate-manager-api]
+  name        = "sgtm-certmap-${random_id.tf_prefix.hex}"
+  description = "Server Side GTM certificate map"
+}
+
+resource "google_certificate_manager_certificate_map_entry" "certmap_entries" {
+  for_each     = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
+  name         = "sgtm-entry-${replace(each.key, ".", "-")}"
+  description  = "Certificate map entry for ${each.key}"
+  map          = google_certificate_manager_certificate_map.sgtm_certmap.name
+  certificates = [google_certificate_manager_certificate.sgtm_ssl_cert[each.key].id]
+  hostname     = each.key
 }
