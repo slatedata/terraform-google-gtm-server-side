@@ -67,3 +67,20 @@ variable "domains" {
   type        = list(string)
   default     = []
 }
+
+variable "deploy_ssl_policy" {
+  description = "Whether to deploy an SSL policy for the sGTM instances"
+  type        = bool
+  default     = false
+}
+
+variable "ssl_policy_profile" {
+  description = "The SSL policy profile for the sGTM instances"
+  type        = string
+  default     = "MODERN"
+}
+variable "min_tls_version" {
+  description = "The minimum TLS version for the sGTM instances"
+  type        = string
+  default     = "TLS_1_2"
+}
