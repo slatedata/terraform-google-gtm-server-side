@@ -26,6 +26,10 @@ resource "google_cloud_run_v2_service" "gtmss-cr" {
         name  = "CONTAINER_CONFIG"
         value = var.container_config
       }
+      env {
+        name  = "PREVIEW_SERVER_URL"
+        value = var.deploy_preview_server ? google_cloud_run_v2_service.gtmss-cr-preview[0].uri : ""
+      }
     }
   }
 }
