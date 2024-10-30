@@ -117,7 +117,7 @@ resource "google_compute_target_https_proxy" "l7_proxy" {
   name            = "l7-xlb-gtmss-proxy-https"
   url_map         = google_compute_url_map.gtmss_url_map.0.id
   certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.0.id}"
-  ssl_policy      = var.deploy_ssl_policy ? "projects/${var.project_id}/global/sslPolicies/${google_compute_ssl_policy.sgtm-ssl-policy.0.id}" : null
+  ssl_policy      = var.deploy_ssl_policy ? google_compute_ssl_policy.sgtm-ssl-policy.0.self_link : null
 }
 
 resource "google_compute_backend_service" "gtmss_backend" {
