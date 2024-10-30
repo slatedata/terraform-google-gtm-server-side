@@ -121,12 +121,33 @@ resource "google_compute_target_https_proxy" "l7_proxy" {
 }
 
 resource "google_compute_backend_service" "gtmss_backend" {
-  depends_on  = [google_project_service.compute_api]
-  count       = var.deploy_load_balancer ? 1 : 0
-  name        = "gtmss-backend"
-  protocol    = "HTTP"
-  port_name   = "http"
-  timeout_sec = 30
+  depends_on              = [google_project_service.compute_api]
+  count                   = var.deploy_load_balancer ? 1 : 0
+  name                    = "gtmss-backend"
+  protocol                = "HTTP"
+  port_name               = "http"
+  timeout_sec             = 30
+  security_policy         = var.cloud_armor_policy
+  enable_cdn              = var.deploy_cdn
+  custom_response_headers = var.custom_response_headers
+  dynamic "cdn_policy" {
+    for_each = var.deploy_cdn ? [1] : []
+    content {
+      cache_mode  = var.cdn_settings.cache_mode
+      default_ttl = var.cdn_settings.default_ttl
+      client_ttl  = var.cdn_settings.client_ttl
+      max_ttl     = var.cdn_settings.max_ttl
+      cache_key_policy {
+        include_host         = var.cdn_settings.cache_key_policy.include_host
+        include_protocol     = var.cdn_settings.cache_key_policy.include_protocol
+        include_query_string = var.cdn_settings.cache_key_policy.include_query_string
+      }
+    }
+  }
+  log_config {
+    enable      = var.enable_logging
+    sample_rate = var.sample_rate
+  }
   dynamic "backend" {
     for_each = toset(var.regions)
     content {
