@@ -55,6 +55,7 @@ No modules.
 | [google_cloud_run_v2_service.gtmss-cr](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
 | [google_cloud_run_v2_service.gtmss-cr-preview](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
 | [google_compute_backend_service.gtmss_backend](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_backend_service) | resource |
+| [google_compute_backend_service.gtmss_serving_backend](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_backend_service) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv4](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv4_https](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
 | [google_compute_global_forwarding_rule.fwd_ipv6](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule) | resource |
@@ -73,9 +74,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cdn_settings"></a> [cdn\_settings](#input\_cdn\_settings) | The settings for the CDN policy | <pre>object({<br>    cache_mode  = string<br>    default_ttl = number<br>    client_ttl  = number<br>    max_ttl     = number<br>    cache_key_policy = object({<br>      include_host           = bool<br>      include_protocol       = bool<br>      include_query_string   = bool,<br>      whitelist_query_string = list(string),<br>      blacklist_query_string = list(string),<br>    })<br>  })</pre> | <pre>{<br>  "cache_key_policy": {<br>    "blacklist_query_string": [],<br>    "include_host": true,<br>    "include_protocol": true,<br>    "include_query_string": true,<br>    "whitelist_query_string": []<br>  },<br>  "cache_mode": "FORCE_CACHE_ALL",<br>  "client_ttl": 3600,<br>  "default_ttl": 3600,<br>  "max_ttl": null<br>}</pre> | no |
+| <a name="input_cdn_settings"></a> [cdn\_settings](#input\_cdn\_settings) | The settings for the CDN policy | <pre>object({<br/>    cache_mode  = string<br/>    default_ttl = number<br/>    client_ttl  = number<br/>    max_ttl     = number<br/>    cache_key_policy = object({<br/>      include_host           = bool<br/>      include_protocol       = bool<br/>      include_query_string   = bool,<br/>      whitelist_query_string = list(string),<br/>      blacklist_query_string = list(string),<br/>    })<br/>  })</pre> | <pre>{<br/>  "cache_key_policy": {<br/>    "blacklist_query_string": [],<br/>    "include_host": true,<br/>    "include_protocol": true,<br/>    "include_query_string": true,<br/>    "whitelist_query_string": []<br/>  },<br/>  "cache_mode": "FORCE_CACHE_ALL",<br/>  "client_ttl": 3600,<br/>  "default_ttl": 3600,<br/>  "max_ttl": null<br/>}</pre> | no |
 | <a name="input_cloud_armor_policy"></a> [cloud\_armor\_policy](#input\_cloud\_armor\_policy) | The Cloud Armor policy to apply to the sGTM instances. This should be the self\_link attribute for your policy. | `string` | `null` | no |
 | <a name="input_container_config"></a> [container\_config](#input\_container\_config) | The container configuration for your sGTM | `string` | n/a | yes |
+| <a name="input_custom_request_headers"></a> [custom\_request\_headers](#input\_custom\_request\_headers) | Custom request headers to send to the backend serivce | `list(string)` | `[]` | no |
 | <a name="input_custom_response_headers"></a> [custom\_response\_headers](#input\_custom\_response\_headers) | Custom response headers to add to the backend service | `list(string)` | `[]` | no |
 | <a name="input_deploy_cdn"></a> [deploy\_cdn](#input\_deploy\_cdn) | Whether to deploy a CDN policy for the sGTM instances | `bool` | `false` | no |
 | <a name="input_deploy_load_balancer"></a> [deploy\_load\_balancer](#input\_deploy\_load\_balancer) | Whether to deploy a load balancer in front of the sGTM instances | `bool` | `false` | no |
@@ -91,7 +93,7 @@ No modules.
 | <a name="input_min_tls_version"></a> [min\_tls\_version](#input\_min\_tls\_version) | The minimum TLS version for the sGTM instances | `string` | `"TLS_1_2"` | no |
 | <a name="input_preview_region"></a> [preview\_region](#input\_preview\_region) | The region to deploy the sGTM Preview Server | `string` | `"europe-west1"` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The Google Cloud Project ID that sGTM will be deployed in | `string` | n/a | yes |
-| <a name="input_regions"></a> [regions](#input\_regions) | The Google Cloud Regions that sGTM will be deployed in | `list(string)` | <pre>[<br>  "europe-west1"<br>]</pre> | no |
+| <a name="input_regions"></a> [regions](#input\_regions) | The Google Cloud Regions that sGTM will be deployed in | `list(string)` | <pre>[<br/>  "europe-west1"<br/>]</pre> | no |
 | <a name="input_sample_rate"></a> [sample\_rate](#input\_sample\_rate) | The rate at which to log requests | `number` | `0.1` | no |
 | <a name="input_ssl_policy_profile"></a> [ssl\_policy\_profile](#input\_ssl\_policy\_profile) | The SSL policy profile for the sGTM instances | `string` | `"MODERN"` | no |
 

@@ -1,6 +1,7 @@
 resource "google_certificate_manager_certificate" "sgtm_ssl_cert" {
-  for_each = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
-  name     = "sgtm-ssl-cert-${replace(each.key, ".", "-")}"
+  depends_on = [google_project_service.certificate-manager-api]
+  for_each   = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
+  name       = "sgtm-ssl-cert-${replace(each.key, ".", "-")}"
   managed {
     domains = [each.key]
   }
