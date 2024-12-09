@@ -116,16 +116,38 @@ resource "google_compute_target_https_proxy" "l7_proxy" {
   project         = var.project_id
   name            = "l7-xlb-gtmss-proxy-https"
   url_map         = google_compute_url_map.gtmss_url_map.0.id
-  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.id}"
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.0.id}"
+  ssl_policy      = var.deploy_ssl_policy ? google_compute_ssl_policy.sgtm-ssl-policy.0.self_link : null
 }
 
 resource "google_compute_backend_service" "gtmss_backend" {
-  depends_on  = [google_project_service.compute_api]
-  count       = var.deploy_load_balancer ? 1 : 0
-  name        = "gtmss-backend"
-  protocol    = "HTTP"
-  port_name   = "http"
-  timeout_sec = 30
+  depends_on              = [google_project_service.compute_api]
+  count                   = var.deploy_load_balancer ? 1 : 0
+  name                    = "gtmss-backend"
+  protocol                = "HTTP"
+  port_name               = "http"
+  timeout_sec             = 30
+  security_policy         = var.cloud_armor_policy
+  enable_cdn              = var.deploy_cdn
+  custom_response_headers = var.custom_response_headers
+  dynamic "cdn_policy" {
+    for_each = var.deploy_cdn ? [1] : []
+    content {
+      cache_mode  = var.cdn_settings.cache_mode
+      default_ttl = var.cdn_settings.default_ttl
+      client_ttl  = var.cdn_settings.client_ttl
+      max_ttl     = var.cdn_settings.max_ttl
+      cache_key_policy {
+        include_host         = var.cdn_settings.cache_key_policy.include_host
+        include_protocol     = var.cdn_settings.cache_key_policy.include_protocol
+        include_query_string = var.cdn_settings.cache_key_policy.include_query_string
+      }
+    }
+  }
+  log_config {
+    enable      = var.enable_logging
+    sample_rate = var.sample_rate
+  }
   dynamic "backend" {
     for_each = toset(var.regions)
     content {
@@ -140,29 +162,9 @@ resource "google_compute_url_map" "gtmss_url_map" {
   default_service = google_compute_backend_service.gtmss_backend.0.id
 }
 
-resource "google_certificate_manager_certificate" "sgtm_ssl_cert" {
-  for_each = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
-  name     = "sgtm-ssl-cert-${replace(each.key, ".", "-")}"
-  managed {
-    domains = [each.key]
-  }
-}
-#
-resource "random_id" "tf_prefix" {
-  byte_length = 8
-}
-
-resource "google_certificate_manager_certificate_map" "sgtm_certmap" {
-  depends_on  = [google_project_service.certificate-manager-api]
-  name        = "sgtm-certmap-${random_id.tf_prefix.hex}"
-  description = "Server Side GTM certificate map"
-}
-
-resource "google_certificate_manager_certificate_map_entry" "certmap_entries" {
-  for_each     = (var.deploy_load_balancer && var.deploy_ssl ? toset(var.domains) : [])
-  name         = "sgtm-entry-${replace(each.key, ".", "-")}"
-  description  = "Certificate map entry for ${each.key}"
-  map          = google_certificate_manager_certificate_map.sgtm_certmap.name
-  certificates = [google_certificate_manager_certificate.sgtm_ssl_cert[each.key].id]
-  hostname     = each.key
+resource "google_compute_ssl_policy" "sgtm-ssl-policy" {
+  count           = var.deploy_ssl_policy ? 1 : 0
+  name            = "sgtm-ssl-policy-${random_id.tf_prefix.hex}"
+  profile         = var.ssl_policy_profile
+  min_tls_version = var.min_tls_version
 }
