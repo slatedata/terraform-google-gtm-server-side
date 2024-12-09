@@ -128,6 +128,45 @@ resource "google_compute_backend_service" "gtmss_backend" {
   port_name               = "http"
   timeout_sec             = 30
   security_policy         = var.cloud_armor_policy
+  enable_cdn              = var.deploy_cdn && length(var.custom_request_headers) == 0
+  custom_response_headers = var.custom_response_headers
+  dynamic "cdn_policy" {
+    for_each = var.deploy_cdn && length(var.custom_request_headers) == 0 ? [1] : []
+    content {
+      cache_mode  = var.cdn_settings.cache_mode
+      default_ttl = var.cdn_settings.default_ttl
+      client_ttl  = var.cdn_settings.client_ttl
+      max_ttl     = var.cdn_settings.max_ttl
+      cache_key_policy {
+        include_host         = var.cdn_settings.cache_key_policy.include_host
+        include_protocol     = var.cdn_settings.cache_key_policy.include_protocol
+        include_query_string = var.cdn_settings.cache_key_policy.include_query_string
+      }
+    }
+  }
+  log_config {
+    enable      = var.enable_logging
+    sample_rate = var.sample_rate
+  }
+  dynamic "backend" {
+    for_each = toset(var.regions)
+    content {
+      group = google_compute_region_network_endpoint_group.serverless-neg[backend.key].id
+    }
+  }
+  custom_request_headers = var.custom_request_headers
+}
+
+
+resource "google_compute_backend_service" "gtmss_serving_backend" {
+  depends_on              = [google_project_service.compute_api]
+  count                   = var.deploy_load_balancer && length(var.custom_request_headers) > 0 ? 1 : 0
+  name                    = "gtmss-serving-backend"
+  description             = "Backend to serve GTM and GTAG scripts, no custom headers applied"
+  protocol                = "HTTP"
+  port_name               = "http"
+  timeout_sec             = 30
+  security_policy         = var.cloud_armor_policy
   enable_cdn              = var.deploy_cdn
   custom_response_headers = var.custom_response_headers
   dynamic "cdn_policy" {
@@ -154,13 +193,40 @@ resource "google_compute_backend_service" "gtmss_backend" {
       group = google_compute_region_network_endpoint_group.serverless-neg[backend.key].id
     }
   }
+
 }
 
 resource "google_compute_url_map" "gtmss_url_map" {
   count           = var.deploy_load_balancer ? 1 : 0
   name            = "gtmss-url-map"
   default_service = google_compute_backend_service.gtmss_backend.0.id
+  dynamic "host_rule" {
+    for_each = length(var.custom_request_headers) > 0 ? [1] : []
+    content {
+      hosts        = var.domains
+      path_matcher = "serving"
+    }
+  }
+  dynamic "path_matcher" {
+    for_each = length(var.custom_request_headers) > 0 ? [1] : []
+    content {
+      name = "serving"
+      path_rule {
+        paths   = ["/gtm.js", "/gtag/*"]
+        service = google_compute_backend_service.gtmss_serving_backend.0.id
+      }
+      path_rule {
+        paths   = ["/*"]
+        service = google_compute_backend_service.gtmss_backend.0.id
+      }
+      default_service = google_compute_backend_service.gtmss_backend.0.id
+    }
+  }
+
+
 }
+
+
 
 resource "google_compute_ssl_policy" "sgtm-ssl-policy" {
   count           = var.deploy_ssl_policy ? 1 : 0
