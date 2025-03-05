@@ -21,6 +21,7 @@ resource "google_cloud_run_v2_service" "gtmss-cr" {
       max_instance_count = var.max_instance_count
     }
     containers {
+      name  = "gtm-cloud-image-1"
       image = "gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable"
       env {
         name  = "CONTAINER_CONFIG"
@@ -29,6 +30,10 @@ resource "google_cloud_run_v2_service" "gtmss-cr" {
       env {
         name  = "PREVIEW_SERVER_URL"
         value = var.deploy_preview_server ? google_cloud_run_v2_service.gtmss-cr-preview[0].uri : ""
+      }
+      env {
+        name  = "GOOGLE_CLOUD_PROJECT"
+        value = var.project_id
       }
     }
   }
