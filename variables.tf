@@ -151,7 +151,7 @@ variable "custom_response_headers" {
 }
 
 variable "custom_request_headers" {
-  description = "Custom request headers to send to the backend serivce"
+  description = "Custom request headers to send to the backend service"
   type        = list(string)
   default     = []
 }
